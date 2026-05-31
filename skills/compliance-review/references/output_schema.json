@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ComplianceReviewOutput",
+  "description": "Verdict object produced by scripts/compliance.py. Deterministic; reproducible from the same input. A human ratifies this verdict via the engine's compliance gate.",
+  "type": "object",
+  "oneOf": [
+    {
+      "required": ["verdict", "blocking_findings", "advisory_findings", "checks", "summary"],
+      "properties": {
+        "verdict": {"type": "string", "enum": ["pass", "fail"]},
+        "blocking_findings": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/finding"}
+        },
+        "advisory_findings": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/finding"}
+        },
+        "checks": {
+          "type": "object",
+          "required": ["advice_language", "guarantee_language", "required_disclosures", "numeric_consistency"],
+          "properties": {
+            "advice_language": {
+              "type": "object",
+              "required": ["passed", "hits"],
+              "properties": {
+                "passed": {"type": "boolean"},
+                "hits": {"type": "array", "items": {"type": "object"}}
+              }
+            },
+            "guarantee_language": {
+              "type": "object",
+              "required": ["passed", "hits"],
+              "properties": {
+                "passed": {"type": "boolean"},
+                "hits": {"type": "array", "items": {"type": "object"}}
+              }
+            },
+            "required_disclosures": {
+              "type": "object",
+              "required": ["passed", "missing"],
+              "properties": {
+                "passed": {"type": "boolean"},
+                "missing": {"type": "array", "items": {"type": "string"}}
+              }
+            },
+            "numeric_consistency": {
+              "type": "object",
+              "required": ["passed", "mismatches"],
+              "properties": {
+                "passed": {"type": "boolean"},
+                "mismatches": {"type": "array", "items": {"type": "object"}}
+              }
+            }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "required": ["blocking_count", "advisory_count"],
+          "properties": {
+            "blocking_count": {"type": "integer"},
+            "advisory_count": {"type": "integer"}
+          }
+        }
+      }
+    },
+    {
+      "required": ["error"],
+      "properties": {
+        "error": {"type": "string", "enum": ["invalid_input"]},
+        "details": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  ],
+  "definitions": {
+    "finding": {
+      "type": "object",
+      "required": ["category", "severity", "detail", "evidence"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["advice_language", "guarantee_language", "missing_disclosure",
+                   "numeric_inconsistency", "missing_disclosure_advisory"]
+        },
+        "severity": {"type": "string", "enum": ["blocking", "advisory"]},
+        "detail": {"type": "string"},
+        "evidence": {"type": "string"}
+      }
+    }
+  }
+}

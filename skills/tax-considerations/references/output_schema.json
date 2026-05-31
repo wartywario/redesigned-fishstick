@@ -1,0 +1,230 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaxConsiderationsOutput",
+  "description": "Full output object for the tax-considerations skill. Quantitative fields (gain/loss aggregates, flags) are produced by scripts/tax_flags.py. Qualitative fields (summaries, observations, adviser questions) are added by the model.",
+  "type": "object",
+  "required": [
+    "tax_considerations_summary",
+    "input_quality",
+    "taxable_gain_loss_snapshot",
+    "account_tax_treatment_review",
+    "asset_location_observations",
+    "rebalancing_tax_flags",
+    "withdrawal_tax_flags",
+    "roth_conversion_review_flags",
+    "rmd_review_flags",
+    "charitable_giving_review_flags",
+    "irmaa_review_flags",
+    "estate_and_special_situation_flags",
+    "missing_information",
+    "unknowns",
+    "professional_review_flags",
+    "downstream_handoff"
+  ],
+  "properties": {
+    "tax_considerations_summary": {
+      "type": "object",
+      "description": "Model-generated plain-language summary. No advice.",
+      "properties": {
+        "summary_text": { "type": "string" },
+        "overall_tax_sensitivity": {
+          "type": "string",
+          "enum": ["low", "moderate", "high", "unknown"]
+        },
+        "data_quality": {
+          "type": "string",
+          "enum": ["high", "medium", "low", "unknown"]
+        },
+        "data_quality_notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "input_quality": {
+      "type": "object",
+      "description": "Produced by scripts/tax_flags.py.",
+      "properties": {
+        "portfolio_total_value": { "type": ["number", "null"] },
+        "portfolio_total_value_source": {
+          "type": "string",
+          "enum": ["provided", "calculated_from_accounts", "calculated_from_holdings", "missing"]
+        },
+        "known_taxable_basis_coverage": { "type": ["number", "null"],
+          "description": "taxable_market_value_with_known_basis / taxable_market_value" },
+        "taxable_holdings_with_missing_basis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "holding": { "type": "string" },
+              "account": { "type": "string" }
+            }
+          }
+        },
+        "holdings_with_unknown_account_type": { "type": "array", "items": { "type": "string" } },
+        "missing_information": { "type": "array", "items": { "type": "string" } },
+        "unknowns": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "taxable_gain_loss_snapshot": {
+      "type": "object",
+      "description": "Produced by scripts/tax_flags.py using authoritative formulas.",
+      "properties": {
+        "taxable_market_value":                 { "type": ["number", "null"] },
+        "taxable_market_value_with_known_basis": { "type": ["number", "null"] },
+        "known_taxable_basis_coverage":         { "type": ["number", "null"] },
+        "taxable_embedded_gain_total":          { "type": ["number", "null"] },
+        "taxable_embedded_loss_total":          { "type": ["number", "null"] },
+        "net_taxable_embedded_gain_loss":       { "type": ["number", "null"] },
+        "long_term_gain_total":                 { "type": ["number", "null"] },
+        "long_term_loss_total":                 { "type": ["number", "null"] },
+        "short_term_gain_total":                { "type": ["number", "null"] },
+        "short_term_loss_total":                { "type": ["number", "null"] },
+        "gain_loss_by_holding": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ticker_or_name":            { "type": ["string", "null"] },
+              "account_name":              { "type": ["string", "null"] },
+              "account_tax_treatment":     { "type": ["string", "null"] },
+              "market_value":              { "type": ["number", "null"] },
+              "cost_basis":                { "type": ["number", "null"] },
+              "unrealized_gain_loss":      { "type": ["number", "null"] },
+              "unrealized_gain_loss_pct":  { "type": ["number", "null"] },
+              "portfolio_weight":          { "type": ["number", "null"] },
+              "holding_period":            { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "account_tax_treatment_review": {
+      "type": "array",
+      "description": "Model-generated summary of each account's tax treatment and any review notes.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "account_name":    { "type": "string" },
+          "account_type":    { "type": "string" },
+          "tax_treatment":   { "type": "string" },
+          "balance":         { "type": ["number", "null"] },
+          "review_notes":    { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "asset_location_observations": {
+      "type": "array",
+      "description": "Model-generated observations on whether assets are in tax-efficient locations. Not advice.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "observation": { "type": "string" },
+          "accounts_or_holdings_involved": { "type": "array", "items": { "type": "string" } },
+          "review_with_tax_professional": { "type": "boolean" }
+        }
+      }
+    },
+    "rebalancing_tax_flags": {
+      "type": "array",
+      "description": "Produced by scripts/tax_flags.py. Review considerations for rebalancing in taxable accounts.",
+      "items": { "type": "object" }
+    },
+    "withdrawal_tax_flags": {
+      "type": "array",
+      "description": "Model-generated observations on withdrawal sequencing tax sensitivity.",
+      "items": { "type": "object" }
+    },
+    "roth_conversion_review_flags": {
+      "type": "array",
+      "description": "Produced by scripts/tax_flags.py. Considerations only — not conversion recommendations.",
+      "items": { "type": "object" }
+    },
+    "rmd_review_flags": {
+      "type": "array",
+      "description": "Produced by scripts/tax_flags.py.",
+      "items": { "type": "object" }
+    },
+    "charitable_giving_review_flags": {
+      "type": "array",
+      "description": "Produced by scripts/tax_flags.py. QCD/DAF review considerations only.",
+      "items": { "type": "object" }
+    },
+    "irmaa_review_flags": {
+      "type": "array",
+      "description": "Produced by scripts/tax_flags.py.",
+      "items": { "type": "object" }
+    },
+    "estate_and_special_situation_flags": {
+      "type": "array",
+      "description": "Produced by scripts/tax_flags.py when complex-situation signals are present.",
+      "items": { "type": "object" }
+    },
+    "adviser_review_questions": {
+      "type": "array",
+      "description": "Model-generated practical questions for the user to bring to a CPA or financial adviser.",
+      "items": { "type": "string" }
+    },
+    "missing_information": {
+      "type": "array",
+      "description": "Combined from script output and model validation.",
+      "items": { "type": "string" }
+    },
+    "unknowns": {
+      "type": "array",
+      "description": "Data present but unclassifiable (e.g., unknown account type).",
+      "items": { "type": "string" }
+    },
+    "professional_review_flags": {
+      "type": "array",
+      "description": "Produced by scripts/tax_flags.py. Unified list of high-priority items for adviser handoff.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string" },
+          "flag":     { "type": "string" },
+          "severity": { "type": "string", "enum": ["review", "high_priority_review", "data_gap"] }
+        }
+      }
+    },
+    "downstream_handoff": {
+      "type": "object",
+      "description": "Produced by scripts/tax_flags.py. Fields for downstream skills.",
+      "properties": {
+        "for_rebalancing": {
+          "type": "object",
+          "properties": {
+            "taxable_embedded_gain_total":        { "type": ["number", "null"] },
+            "taxable_embedded_loss_total":        { "type": ["number", "null"] },
+            "net_taxable_embedded_gain_loss":     { "type": ["number", "null"] },
+            "loss_harvest_candidates":            { "type": "array" },
+            "concentrated_low_basis_positions":  { "type": "array" },
+            "missing_basis_accounts":            { "type": "array" },
+            "note":                              { "type": "string" }
+          }
+        },
+        "for_longevity_modeling": {
+          "type": "object",
+          "properties": {
+            "state_has_income_tax": { "type": ["boolean", "null"] },
+            "state":                { "type": ["string", "null"] },
+            "note":                 { "type": "string" }
+          }
+        },
+        "for_scenario_analysis": {
+          "type": "object",
+          "properties": {
+            "tax_sensitive_flags_present": { "type": "boolean" },
+            "high_priority_flags":         { "type": "array" }
+          }
+        },
+        "for_reporting": {
+          "type": "object",
+          "properties": {
+            "known_taxable_basis_coverage":   { "type": ["number", "null"] },
+            "net_taxable_embedded_gain_loss": { "type": ["number", "null"] },
+            "total_flag_count":               { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}

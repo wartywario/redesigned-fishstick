@@ -1,0 +1,103 @@
+{
+  "_comment": "Realistic sample input: household age 62, CA, MFJ. Concentrated low-basis taxable stock, a loss position, missing basis on one holding, traditional IRA, Roth IRA, charitable intent.",
+  "household": {
+    "client_age": 62,
+    "partner_age": 60,
+    "state": "CA",
+    "filing_status": "married_filing_jointly"
+  },
+  "portfolio": {
+    "total_value": 1450000,
+    "current_allocation": {
+      "equity": 0.80,
+      "fixed_income": 0.14,
+      "cash": 0.06
+    },
+    "account_level_allocation": [],
+    "concentration_risks": []
+  },
+  "accounts": [
+    {
+      "name": "Taxable Brokerage",
+      "type": "taxable_brokerage",
+      "tax_treatment": "taxable",
+      "balance": 650000
+    },
+    {
+      "name": "Traditional IRA",
+      "type": "traditional_ira",
+      "tax_treatment": "tax_deferred",
+      "balance": 600000
+    },
+    {
+      "name": "Roth IRA",
+      "type": "roth_ira",
+      "tax_treatment": "tax_free",
+      "balance": 200000
+    }
+  ],
+  "holdings": [
+    {
+      "account_name": "Taxable Brokerage",
+      "ticker_or_name": "ACME Corp",
+      "market_value": 300000,
+      "cost_basis": 40000,
+      "holding_period": "long_term",
+      "asset_class": "single_stock",
+      "broad_asset_group": "equity"
+    },
+    {
+      "account_name": "Taxable Brokerage",
+      "ticker_or_name": "VTI",
+      "market_value": 200000,
+      "cost_basis": 160000,
+      "holding_period": "long_term",
+      "asset_class": "us_total_market_equity",
+      "broad_asset_group": "equity"
+    },
+    {
+      "account_name": "Taxable Brokerage",
+      "ticker_or_name": "VXUS",
+      "market_value": 80000,
+      "cost_basis": 95000,
+      "holding_period": "long_term",
+      "asset_class": "international_developed_equity",
+      "broad_asset_group": "equity"
+    },
+    {
+      "account_name": "Taxable Brokerage",
+      "ticker_or_name": "XYZ Growth Fund",
+      "market_value": 70000,
+      "cost_basis": null,
+      "holding_period": null,
+      "asset_class": "us_large_cap_equity",
+      "broad_asset_group": "equity"
+    }
+  ],
+  "income": [
+    {
+      "source": "Salary",
+      "amount": 180000,
+      "frequency": "annual",
+      "taxability": "taxable"
+    }
+  ],
+  "tax_profile": {
+    "state": "CA",
+    "filing_status": "married_filing_jointly",
+    "federal_marginal_bracket": 0.24,
+    "capital_gains_bracket": 0.15,
+    "estimated_taxable_income": 180000,
+    "charitable_giving_interest": true,
+    "rmd_relevant": null,
+    "roth_conversion_interest": null
+  },
+  "planning_context": {
+    "charitable_intent": true,
+    "income_expected_to_decrease": false,
+    "retirement_within_10_years": true,
+    "roth_conversion_interest": null,
+    "large_capital_gain_expected": false
+  },
+  "thresholds": {}
+}

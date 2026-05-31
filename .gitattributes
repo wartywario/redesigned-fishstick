@@ -1,0 +1,9 @@
+# Normalize line endings across machines.
+# Store text as LF in the repo; check out LF everywhere by default.
+* text=auto eol=lf
+
+# Shell installer MUST be LF to run on macOS/Linux.
+*.sh text eol=lf
+
+# PowerShell is native CRLF on Windows.
+*.ps1 text eol=crlf

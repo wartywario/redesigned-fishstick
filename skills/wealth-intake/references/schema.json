@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "required": [
+    "household",
+    "goals",
+    "accounts",
+    "holdings",
+    "income",
+    "expenses",
+    "liabilities",
+    "tax_profile",
+    "risk_profile",
+    "assumptions",
+    "missing_information",
+    "conflicts_or_uncertainties",
+    "professional_review_flags"
+  ],
+  "properties": {
+    "household": {
+      "type": "object",
+      "properties": {
+        "client_age": { "type": ["number", "null"] },
+        "partner_age": { "type": ["number", "null"] },
+        "state": { "type": ["string", "null"] },
+        "filing_status": { "type": ["string", "null"] },
+        "employment_status": { "type": ["string", "null"] },
+        "planned_retirement_age": { "type": ["number", "null"] },
+        "planning_horizon_age": { "type": ["number", "null"] },
+        "dependents": { "type": "array" }
+      }
+    },
+    "goals": { "type": "array" },
+    "accounts": { "type": "array" },
+    "holdings": { "type": "array" },
+    "income": { "type": "array" },
+    "expenses": { "type": "array" },
+    "liabilities": { "type": "array" },
+    "tax_profile": { "type": "object" },
+    "risk_profile": { "type": "object" },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "missing_information": { "type": "array", "items": { "type": "string" } },
+    "conflicts_or_uncertainties": { "type": "array", "items": { "type": "string" } },
+    "professional_review_flags": { "type": "array", "items": { "type": "string" } }
+  }
+}

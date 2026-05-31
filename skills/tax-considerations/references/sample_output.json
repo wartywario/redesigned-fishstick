@@ -1,0 +1,282 @@
+{
+  "_comment": "Full output for references/sample_input.json. Quantitative sections (input_quality, taxable_gain_loss_snapshot, all flag arrays, professional_review_flags, downstream_handoff) are produced verbatim by scripts/tax_flags.py. Qualitative sections (tax_considerations_summary, account_tax_treatment_review, asset_location_observations, withdrawal_tax_flags, adviser_review_questions) are added by the model.",
+
+  "tax_considerations_summary": {
+    "summary_text": "The taxable brokerage account contains a highly concentrated, low-basis single-stock position (ACME Corp) with an embedded gain of $260,000 (86.7% of market value, 17.9% of total portfolio). A loss position in VXUS (-$15,000) may be a candidate for tax-loss review. One holding (XYZ Growth Fund) is missing cost basis, limiting analysis. The Traditional IRA ($600,000) creates a Roth conversion planning discussion window given 11 years before RMD age and anticipated retirement. Charitable intent is noted but QCD eligibility has not been reached (age 62 < 70). California state income tax applies to all taxable income events. All items below are considerations for CPA/adviser review — not advice or transaction instructions.",
+    "overall_tax_sensitivity": "high",
+    "data_quality": "medium",
+    "data_quality_notes": [
+      "Cost basis missing for XYZ Growth Fund ($70,000 in taxable account).",
+      "Known taxable basis coverage is 89.2% of taxable market value.",
+      "No short-term positions identified; all known taxable positions are long-term.",
+      "Filing status and income provided; federal bracket (24%) is known."
+    ]
+  },
+
+  "input_quality": {
+    "portfolio_total_value": 1450000,
+    "portfolio_total_value_source": "provided",
+    "known_taxable_basis_coverage": 0.8923,
+    "taxable_holdings_with_missing_basis": [
+      { "holding": "XYZ Growth Fund", "account": "Taxable Brokerage" }
+    ],
+    "holdings_with_unknown_account_type": [],
+    "missing_information": [
+      "Cost basis for XYZ Growth Fund (Taxable Brokerage)"
+    ],
+    "unknowns": []
+  },
+
+  "taxable_gain_loss_snapshot": {
+    "taxable_market_value": 650000.0,
+    "taxable_market_value_with_known_basis": 580000.0,
+    "known_taxable_basis_coverage": 0.8923,
+    "taxable_embedded_gain_total": 300000.0,
+    "taxable_embedded_loss_total": -15000.0,
+    "net_taxable_embedded_gain_loss": 285000.0,
+    "long_term_gain_total": 300000.0,
+    "long_term_loss_total": -15000.0,
+    "short_term_gain_total": 0.0,
+    "short_term_loss_total": 0.0,
+    "gain_loss_by_holding": [
+      {
+        "ticker_or_name": "ACME Corp",
+        "account_name": "Taxable Brokerage",
+        "account_tax_treatment": "taxable",
+        "market_value": 300000,
+        "cost_basis": 40000,
+        "unrealized_gain_loss": 260000,
+        "unrealized_gain_loss_pct": 0.8667,
+        "portfolio_weight": 0.2069,
+        "holding_period": "long_term"
+      },
+      {
+        "ticker_or_name": "VTI",
+        "account_name": "Taxable Brokerage",
+        "account_tax_treatment": "taxable",
+        "market_value": 200000,
+        "cost_basis": 160000,
+        "unrealized_gain_loss": 40000,
+        "unrealized_gain_loss_pct": 0.2,
+        "portfolio_weight": 0.1379,
+        "holding_period": "long_term"
+      },
+      {
+        "ticker_or_name": "VXUS",
+        "account_name": "Taxable Brokerage",
+        "account_tax_treatment": "taxable",
+        "market_value": 80000,
+        "cost_basis": 95000,
+        "unrealized_gain_loss": -15000,
+        "unrealized_gain_loss_pct": -0.1875,
+        "portfolio_weight": 0.0552,
+        "holding_period": "long_term"
+      },
+      {
+        "ticker_or_name": "XYZ Growth Fund",
+        "account_name": "Taxable Brokerage",
+        "account_tax_treatment": "taxable",
+        "market_value": 70000,
+        "cost_basis": null,
+        "unrealized_gain_loss": null,
+        "unrealized_gain_loss_pct": null,
+        "portfolio_weight": 0.0483,
+        "holding_period": "unknown"
+      }
+    ]
+  },
+
+  "account_tax_treatment_review": [
+    {
+      "account_name": "Taxable Brokerage",
+      "account_type": "taxable_brokerage",
+      "tax_treatment": "taxable",
+      "balance": 650000,
+      "review_notes": [
+        "Dividends, interest, and realized gains are taxable in the year received or realized.",
+        "Contains concentrated low-basis single-stock position (ACME Corp).",
+        "One holding (XYZ Growth Fund) is missing cost basis.",
+        "California state income tax applies to all realized gains."
+      ]
+    },
+    {
+      "account_name": "Traditional IRA",
+      "account_type": "traditional_ira",
+      "tax_treatment": "tax_deferred",
+      "balance": 600000,
+      "review_notes": [
+        "All withdrawals are taxed as ordinary income.",
+        "RMDs begin at age 73 — approximately 11 years away.",
+        "May be relevant for Roth conversion planning discussion with a CPA.",
+        "QCD eligibility begins at age 70 if charitable intent continues."
+      ]
+    },
+    {
+      "account_name": "Roth IRA",
+      "account_type": "roth_ira",
+      "tax_treatment": "tax_free",
+      "balance": 200000,
+      "review_notes": [
+        "Qualified withdrawals are tax-free.",
+        "No RMDs required during the owner's lifetime.",
+        "Holding growth-oriented assets here may be favorable — observation only, not advice."
+      ]
+    }
+  ],
+
+  "asset_location_observations": [
+    {
+      "observation": "Observation for CPA/adviser consideration: ACME Corp (single stock, $300,000) is held in the taxable account. Single-stock concentration in a taxable account creates disposition constraints due to the embedded gain. Asset location decisions should be reviewed with a financial adviser.",
+      "accounts_or_holdings_involved": ["Taxable Brokerage", "ACME Corp"],
+      "review_with_tax_professional": true
+    },
+    {
+      "observation": "Observation for CPA/adviser consideration: The Roth IRA ($200,000) holds tax-free assets. Holding higher-growth assets in tax-free accounts may be favorable for long-term compounding. This is an observation, not a recommendation to move assets.",
+      "accounts_or_holdings_involved": ["Roth IRA"],
+      "review_with_tax_professional": false
+    }
+  ],
+
+  "rebalancing_tax_flags": [
+    {
+      "holding": "ACME Corp",
+      "account": "Taxable Brokerage",
+      "portfolio_weight": 0.2069,
+      "flag": "Potential consideration for review: ACME Corp represents 20.7% of total portfolio and is held in a taxable account. Concentration in a taxable position may create tax-sensitive rebalancing or disposition constraints.",
+      "severity": "review"
+    },
+    {
+      "holding": "VTI",
+      "account": "Taxable Brokerage",
+      "portfolio_weight": 0.1379,
+      "flag": "Potential consideration for review: VTI represents 13.8% of total portfolio and is held in a taxable account. Concentration in a taxable position may create tax-sensitive rebalancing or disposition constraints.",
+      "severity": "review"
+    }
+  ],
+
+  "withdrawal_tax_flags": [
+    {
+      "observation": "Potential consideration for CPA/adviser review: Withdrawal sequencing from taxable, tax-deferred, and Roth accounts affects lifetime tax exposure. The conventional default order (taxable first, then tax-deferred, then Roth) is a modeling assumption — the optimal sequence depends on current and future tax rates, RMD requirements, estate goals, and IRMAA exposure. Professional review is required before any withdrawal strategy is implemented.",
+      "severity": "review"
+    }
+  ],
+
+  "roth_conversion_review_flags": [
+    {
+      "client_age": 62,
+      "years_to_rmd_start": 11,
+      "flag": "Potential consideration for CPA/adviser review: A Roth conversion planning discussion may be relevant (11 year(s) before RMD start age 73; retirement expected within 10 years). The tax-deferred balance, current and future tax brackets, and RMD projections should be evaluated by a CPA or financial adviser before any conversion. This is not a conversion recommendation.",
+      "severity": "review",
+      "note": "This is a planning consideration flag, not a conversion recommendation."
+    }
+  ],
+
+  "rmd_review_flags": [],
+
+  "charitable_giving_review_flags": [
+    {
+      "client_age": 62,
+      "flag": "Potential consideration for CPA/adviser review: Charitable intent is noted. Strategies such as donor-advised funds, bunching of charitable deductions, or appreciated-asset gifting may be relevant to review. Do not execute any charitable giving strategy without professional guidance.",
+      "severity": "review"
+    }
+  ],
+
+  "irmaa_review_flags": [],
+
+  "estate_and_special_situation_flags": [],
+
+  "adviser_review_questions": [
+    "What is the cost basis and holding period for XYZ Growth Fund in the taxable account?",
+    "Is ACME Corp a current or former employer stock? Are there any lock-up, grant, or vesting considerations?",
+    "What is the planned retirement date, and is income expected to change in the next 3–5 years?",
+    "Has a Roth conversion analysis been done in the context of the $600,000 Traditional IRA, current 24% bracket, and anticipated RMDs?",
+    "Is a donor-advised fund or other charitable vehicle already in place, or is direct appreciated-stock gifting being considered?",
+    "Are there any plans to realize the VXUS loss? If so, what is the plan for avoiding a wash-sale violation?",
+    "Has the California Franchise Tax Board rate been confirmed for capital gains from ACME Corp disposition scenarios?"
+  ],
+
+  "missing_information": [
+    "Cost basis for XYZ Growth Fund (Taxable Brokerage)"
+  ],
+
+  "unknowns": [],
+
+  "professional_review_flags": [
+    {
+      "category": "large_embedded_gain_flags",
+      "flag": "Potential consideration for CPA/adviser review: ACME Corp has an embedded gain of $260,000, representing 17.9% of total portfolio value. A disposition event could generate a material taxable gain.",
+      "severity": "high_priority_review"
+    },
+    {
+      "category": "concentration_flags",
+      "flag": "Potential consideration for review: ACME Corp represents 20.7% of total portfolio and is held in a taxable account. Concentration in a taxable position may create tax-sensitive rebalancing or disposition constraints.",
+      "severity": "review"
+    },
+    {
+      "category": "concentration_flags",
+      "flag": "Potential consideration for review: VTI represents 13.8% of total portfolio and is held in a taxable account. Concentration in a taxable position may create tax-sensitive rebalancing or disposition constraints.",
+      "severity": "review"
+    },
+    {
+      "category": "low_basis_flags",
+      "flag": "Potential consideration for CPA/adviser review: ACME Corp has an embedded gain of 86.7% (basis $40,000, market value $300,000). Disposition or rebalancing may generate a taxable gain.",
+      "severity": "review"
+    },
+    {
+      "category": "loss_harvest_candidate_flags",
+      "flag": "Potential consideration for CPA/adviser review: VXUS shows an unrealized loss of -$15,000 (-18.8%). May be a candidate for tax-loss review. Do not execute any sale without professional review, including wash-sale rule analysis.",
+      "severity": "review"
+    },
+    {
+      "category": "roth_conversion_review_flags",
+      "flag": "Potential consideration for CPA/adviser review: A Roth conversion planning discussion may be relevant (11 year(s) before RMD start age 73; retirement expected within 10 years). The tax-deferred balance, current and future tax brackets, and RMD projections should be evaluated by a CPA or financial adviser before any conversion. This is not a conversion recommendation.",
+      "severity": "review"
+    },
+    {
+      "category": "charitable_giving_review_flags",
+      "flag": "Potential consideration for CPA/adviser review: Charitable intent is noted. Strategies such as donor-advised funds, bunching of charitable deductions, or appreciated-asset gifting may be relevant to review. Do not execute any charitable giving strategy without professional guidance.",
+      "severity": "review"
+    },
+    {
+      "category": "state_tax_flags",
+      "flag": "State tax sensitivity: CA has a state income tax. Capital gains realizations, Roth conversions, RMD amounts, and other taxable income events may be subject to state income tax in addition to federal tax. Confirm rates and rules with a CPA.",
+      "severity": "review"
+    }
+  ],
+
+  "downstream_handoff": {
+    "for_rebalancing": {
+      "taxable_embedded_gain_total": 300000.0,
+      "taxable_embedded_loss_total": -15000.0,
+      "net_taxable_embedded_gain_loss": 285000.0,
+      "loss_harvest_candidates": [
+        { "holding": "VXUS", "unrealized_loss": -15000 }
+      ],
+      "concentrated_low_basis_positions": [
+        { "holding": "ACME Corp", "unrealized_gain": 260000 }
+      ],
+      "missing_basis_accounts": ["Taxable Brokerage"],
+      "note": "Rebalancing in taxable accounts should account for embedded gains and losses. Do not execute trades without CPA/adviser review."
+    },
+    "for_longevity_modeling": {
+      "state_has_income_tax": true,
+      "state": "CA",
+      "note": "State income tax status affects effective tax drag on taxable accounts. Confirm rate with CPA before using in projections."
+    },
+    "for_scenario_analysis": {
+      "tax_sensitive_flags_present": true,
+      "high_priority_flags": [
+        {
+          "category": "large_embedded_gain_flags",
+          "flag": "Potential consideration for CPA/adviser review: ACME Corp has an embedded gain of $260,000, representing 17.9% of total portfolio value. A disposition event could generate a material taxable gain.",
+          "severity": "high_priority_review"
+        }
+      ]
+    },
+    "for_reporting": {
+      "known_taxable_basis_coverage": 0.8923,
+      "net_taxable_embedded_gain_loss": 285000.0,
+      "total_flag_count": 9
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "_comment": "Sample input: a client-facing report narrative with all required disclosures and numbers cited against authoritative computed values. This sample is COMPLIANT and yields verdict 'pass'.",
+  "report": {
+    "narrative": "# Wealth Planning Summary\n\nThis analysis is for educational purposes and is **not tax, legal, or investment advice**. Figures are estimates based on stated assumptions and are **not a guarantee** of future results; **past performance does not guarantee future results**. Please **review with a qualified financial adviser or CPA** before acting.\n\n## Portfolio\nTotal portfolio value is approximately $2,214,117, with an equity allocation of about 63%.\n\n## Longevity\nAcross 10,000 simulations the modeled success probability is 79% — a probabilistic estimate, not a guarantee.\n\n## Next steps\nDiscuss these considerations with your adviser.",
+    "cited_numbers": [
+      {"label": "success probability", "value": 0.79, "authoritative_key": "longevity.success_probability"},
+      {"label": "total portfolio value", "value": 2214117, "authoritative_key": "portfolio.total_portfolio_value"},
+      {"label": "equity allocation", "value": 0.63, "authoritative_key": "portfolio.equity_allocation"}
+    ]
+  },
+  "authoritative_values": {
+    "longevity.success_probability": 0.7891,
+    "portfolio.total_portfolio_value": 2214117.1,
+    "portfolio.equity_allocation": 0.63
+  },
+  "required_disclosures": ["advice_disclaimer", "professional_review", "not_a_guarantee"],
+  "thresholds": {"numeric_tol_abs": 0.01, "numeric_tol_rel": 0.01}
+}

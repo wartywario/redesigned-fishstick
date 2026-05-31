@@ -1,0 +1,44 @@
+{
+  "household": {
+    "client_age": 65,
+    "state": "TX",
+    "filing_status": "married_filing_jointly"
+  },
+  "portfolio": {
+    "total_value": 800000
+  },
+  "accounts": [
+    {
+      "name": "Taxable Brokerage",
+      "type": "taxable_brokerage",
+      "tax_treatment": "taxable",
+      "balance": 300000
+    },
+    {
+      "name": "Traditional IRA",
+      "type": "traditional_ira",
+      "tax_treatment": "tax_deferred",
+      "balance": 500000
+    }
+  ],
+  "holdings": [
+    {
+      "account_name": "Taxable Brokerage",
+      "ticker_or_name": "SPY",
+      "market_value": 200000,
+      "cost_basis": 100000,
+      "holding_period": "long_term"
+    },
+    {
+      "account_name": "Taxable Brokerage",
+      "ticker_or_name": "Unknown Fund",
+      "market_value": 100000,
+      "cost_basis": null,
+      "holding_period": null
+    }
+  ],
+  "planning_context": {
+    "charitable_intent": false,
+    "retirement_within_10_years": false
+  }
+}

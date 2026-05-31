@@ -1,0 +1,319 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://wealth-suite.local/schemas/planning_case.schema.json",
+  "title": "PlanningCase",
+  "description": "Accumulating state object for one household's wealth-planning workflow. Each pipeline stage (wealth-intake, portfolio-analysis, longevity-modeling, tax-considerations, scenario-analysis, rebalancing, reporting, compliance-review) appends its output under `stages`, wrapped in a provenance envelope. Every number in any downstream report must be traceable through this object to the skill/script run that produced it. Deterministic scripts + recorded rng_seed make every stage replayable.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "case_id",
+    "created_at",
+    "updated_at",
+    "status",
+    "pipeline",
+    "stages"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Version of THIS planning-case format (not a skill version).",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "case_id": {
+      "type": "string",
+      "description": "Stable unique id for this planning case."
+    },
+    "household_ref": {
+      "type": ["string", "null"],
+      "description": "Opaque reference to the household record. No PII required in this object."
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "status": {
+      "type": "string",
+      "description": "Overall lifecycle status of the case.",
+      "enum": [
+        "intake_in_progress",
+        "analysis_in_progress",
+        "report_ready",
+        "compliance_review",
+        "adviser_review",
+        "delivered",
+        "closed"
+      ]
+    },
+    "pipeline": {
+      "type": "object",
+      "description": "Declares the DAG and overall execution cursor. Per-stage status lives on each stage envelope (stages.<name>.status).",
+      "required": ["dag"],
+      "additionalProperties": false,
+      "properties": {
+        "dag": {
+          "type": "array",
+          "description": "Dependency edges. A stage may run once all `depends_on` stages are `complete`.",
+          "items": {
+            "type": "object",
+            "required": ["stage", "depends_on"],
+            "additionalProperties": false,
+            "properties": {
+              "stage": { "$ref": "#/$defs/stageName" },
+              "depends_on": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/stageName" }
+              },
+              "optional": {
+                "type": "boolean",
+                "default": false,
+                "description": "True for stages not required for a baseline report (e.g. scenario-analysis, rebalancing)."
+              }
+            }
+          }
+        },
+        "active_run_id": {
+          "type": ["string", "null"],
+          "description": "Run id currently executing, if any."
+        }
+      }
+    },
+    "stages": {
+      "type": "object",
+      "description": "One provenance-wrapped envelope per skill that has run. Keys are stage names. Absent key = stage has not run.",
+      "additionalProperties": false,
+      "properties": {
+        "wealth_intake":        { "$ref": "#/$defs/stageEnvelope" },
+        "portfolio_analysis":   { "$ref": "#/$defs/stageEnvelope" },
+        "longevity_modeling":   { "$ref": "#/$defs/stageEnvelope" },
+        "tax_considerations":   { "$ref": "#/$defs/stageEnvelope" },
+        "scenario_analysis":    { "$ref": "#/$defs/stageEnvelope" },
+        "rebalancing":          { "$ref": "#/$defs/stageEnvelope" },
+        "reporting":            { "$ref": "#/$defs/stageEnvelope" },
+        "compliance_review":    { "$ref": "#/$defs/stageEnvelope" }
+      }
+    },
+    "consolidated": {
+      "type": "object",
+      "description": "Cross-cutting collections aggregated from every completed stage. The reporting skill consumes these directly. Each item is tagged with the stage it came from so the source map stays intact.",
+      "additionalProperties": false,
+      "properties": {
+        "missing_information":       { "type": "array", "items": { "$ref": "#/$defs/sourcedItem" } },
+        "assumptions":              { "type": "array", "items": { "$ref": "#/$defs/assumptionItem" } },
+        "conflicts_or_uncertainties": { "type": "array", "items": { "$ref": "#/$defs/sourcedItem" } },
+        "unknowns":                 { "type": "array", "items": { "$ref": "#/$defs/sourcedItem" } },
+        "professional_review_flags": { "type": "array", "items": { "$ref": "#/$defs/reviewFlag" } }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "description": "Compliance gate, human-in-the-loop checkpoints, and adviser sign-off. Client-facing delivery requires compliance_review.status == 'passed' and adviser_signoff.status == 'approved'.",
+      "additionalProperties": false,
+      "properties": {
+        "compliance_review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "string", "enum": ["not_run", "passed", "failed", "waived"] },
+            "run_id": { "type": ["string", "null"] },
+            "produced_at": { "type": ["string", "null"], "format": "date-time" },
+            "blocking_findings": {
+              "type": "array",
+              "description": "Advice-adjacent language or unsourced numbers that must be resolved before delivery.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "location": { "type": "string" },
+                  "finding": { "type": "string" },
+                  "rule": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "adviser_signoff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+            "adviser_ref": { "type": ["string", "null"] },
+            "signed_at": { "type": ["string", "null"], "format": "date-time" },
+            "notes": { "type": ["string", "null"] }
+          }
+        },
+        "hitl_checkpoints": {
+          "type": "array",
+          "description": "Human-in-the-loop stops, e.g. raised automatically when any stage emits professional_review_flags.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["checkpoint", "status"],
+            "properties": {
+              "checkpoint": { "type": "string" },
+              "reason": { "type": "string" },
+              "raised_by_stage": { "$ref": "#/$defs/stageName" },
+              "status": { "type": "string", "enum": ["open", "acknowledged", "resolved", "waived"] },
+              "resolved_by": { "type": ["string", "null"] },
+              "resolved_at": { "type": ["string", "null"], "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+    "audit_log": {
+      "type": "array",
+      "description": "Append-only record of every script/skill invocation. Input+output hashes plus script version make any run reproducible and any number defensible.",
+      "items": { "$ref": "#/$defs/auditRecord" }
+    }
+  },
+
+  "$defs": {
+    "stageName": {
+      "type": "string",
+      "enum": [
+        "wealth_intake",
+        "portfolio_analysis",
+        "longevity_modeling",
+        "tax_considerations",
+        "scenario_analysis",
+        "rebalancing",
+        "reporting",
+        "compliance_review"
+      ]
+    },
+
+    "stageStatus": {
+      "type": "string",
+      "enum": ["pending", "running", "complete", "failed", "skipped", "stale"],
+      "description": "stale = an upstream output_hash changed after this stage consumed it; the stage must be re-run."
+    },
+
+    "hash": {
+      "type": "string",
+      "description": "Content hash with algorithm prefix, e.g. 'sha256:ab12...'.",
+      "pattern": "^[a-z0-9]+:[a-f0-9]{8,128}$"
+    },
+
+    "provenance": {
+      "type": "object",
+      "description": "How this stage's output was produced and from what. The heart of the case object.",
+      "required": ["source_skill", "producer", "produced_at", "output_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "source_skill": { "$ref": "#/$defs/stageName" },
+        "skill_version": { "type": "string", "description": "Version of the SKILL.md that ran." },
+        "producer": {
+          "type": "string",
+          "description": "What generated the output. 'script' = deterministic engine; 'model' = LLM synthesis (no math); 'user' = supplied fact; 'external' = untrusted fetched data.",
+          "enum": ["script", "model", "user", "external"]
+        },
+        "script_name": { "type": ["string", "null"], "description": "e.g. scripts/longevity.py; null when producer != 'script'." },
+        "script_version": { "type": ["string", "null"] },
+        "run_id": { "type": "string", "description": "Unique id for this invocation." },
+        "produced_at": { "type": "string", "format": "date-time" },
+        "input_hash": { "$ref": "#/$defs/hash" },
+        "output_hash": { "$ref": "#/$defs/hash" },
+        "rng_seed": {
+          "type": ["integer", "null"],
+          "description": "Seed used for any stochastic computation (e.g. longevity Monte Carlo). Required for replayability of stochastic stages; null otherwise."
+        },
+        "consumed_from": {
+          "type": "array",
+          "description": "Upstream stages this stage read, with the output_hash seen at read time. Staleness = any of these no longer matches the upstream's current output_hash.",
+          "items": {
+            "type": "object",
+            "required": ["stage", "output_hash"],
+            "additionalProperties": false,
+            "properties": {
+              "stage": { "$ref": "#/$defs/stageName" },
+              "output_hash": { "$ref": "#/$defs/hash" }
+            }
+          }
+        },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "stageEnvelope": {
+      "type": "object",
+      "description": "Provenance + the stage's actual output. `output` conforms to that skill's own output schema, referenced by `output_schema_ref` (single source of truth — not inlined here).",
+      "required": ["status", "provenance", "output"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "$ref": "#/$defs/stageStatus" },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "output_schema_ref": {
+          "type": ["string", "null"],
+          "description": "Path/URI to the authoritative output schema for this skill, e.g. 'tax-considerations/references/output_schema.json'. The executor validates `output` against it before marking the stage complete."
+        },
+        "output": {
+          "type": "object",
+          "description": "The skill's emitted JSON. Shape is governed by output_schema_ref, so it is not constrained inline."
+        },
+        "error": {
+          "type": ["object", "null"],
+          "description": "Populated when status == 'failed'. Mirrors the scripts' {error, missing, details} format.",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "sourcedItem": {
+      "type": "object",
+      "required": ["source_stage", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "source_stage": { "$ref": "#/$defs/stageName" },
+        "text": { "type": "string" }
+      }
+    },
+
+    "assumptionItem": {
+      "type": "object",
+      "required": ["source_stage", "kind", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "source_stage": { "$ref": "#/$defs/stageName" },
+        "kind": { "type": "string", "enum": ["user", "model", "placeholder"], "description": "user-provided vs model/engine assumption vs labeled placeholder." },
+        "text": { "type": "string" }
+      }
+    },
+
+    "reviewFlag": {
+      "type": "object",
+      "required": ["source_stage", "category", "severity", "text", "requires_human_review"],
+      "additionalProperties": false,
+      "properties": {
+        "source_stage": { "$ref": "#/$defs/stageName" },
+        "category": { "type": "string", "description": "e.g. large_embedded_gain_flags, concentration_flags." },
+        "severity": { "type": "string", "enum": ["data_gap", "review", "high_priority_review"] },
+        "text": { "type": "string" },
+        "requires_human_review": {
+          "type": "boolean",
+          "description": "True forces a hitl_checkpoint before delivery."
+        }
+      }
+    },
+
+    "auditRecord": {
+      "type": "object",
+      "required": ["run_id", "stage", "action", "timestamp"],
+      "additionalProperties": false,
+      "properties": {
+        "run_id": { "type": "string" },
+        "stage": { "$ref": "#/$defs/stageName" },
+        "action": { "type": "string", "enum": ["invoke", "validate", "gate", "signoff", "supersede"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "producer": { "type": ["string", "null"], "enum": ["script", "model", "user", "external", null] },
+        "script_name": { "type": ["string", "null"] },
+        "script_version": { "type": ["string", "null"] },
+        "input_hash": { "type": ["string", "null"] },
+        "output_hash": { "type": ["string", "null"] },
+        "rng_seed": { "type": ["integer", "null"] },
+        "executor": { "type": ["string", "null"], "description": "Who/what ran it (orchestrator id, user, CI)." },
+        "outcome": { "type": ["string", "null"], "enum": ["ok", "failed", "blocked", null] }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "verdict": "pass",
+  "blocking_findings": [],
+  "advisory_findings": [],
+  "checks": {
+    "advice_language": {
+      "passed": true,
+      "hits": []
+    },
+    "guarantee_language": {
+      "passed": true,
+      "hits": []
+    },
+    "required_disclosures": {
+      "passed": true,
+      "missing": []
+    },
+    "numeric_consistency": {
+      "passed": true,
+      "mismatches": []
+    }
+  },
+  "summary": {
+    "blocking_count": 0,
+    "advisory_count": 0
+  }
+}

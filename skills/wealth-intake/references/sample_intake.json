@@ -1,0 +1,91 @@
+{
+  "household": {
+    "client_age": 55,
+    "partner_age": null,
+    "state": "WA",
+    "filing_status": null,
+    "employment_status": null,
+    "planned_retirement_age": 60,
+    "planning_horizon_age": 95,
+    "dependents": []
+  },
+  "goals": [
+    {
+      "name": "Retirement income",
+      "category": "retirement",
+      "priority": "high",
+      "target_age_or_date": 60,
+      "amount": 120000,
+      "frequency": "annual",
+      "inflation_adjusted": true,
+      "notes": "Assumed spending is in today's dollars."
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Total invested assets",
+      "type": "unknown/mixed",
+      "owner": null,
+      "tax_treatment": null,
+      "balance": 1800000,
+      "contribution_status": null,
+      "notes": "Account-level breakdown not provided."
+    }
+  ],
+  "holdings": [],
+  "income": [],
+  "expenses": [
+    {
+      "category": "Retirement spending",
+      "amount": 120000,
+      "frequency": "annual",
+      "start_age_or_date": 60,
+      "end_age_or_date": 95,
+      "essential_or_discretionary": null,
+      "inflation_sensitive": true,
+      "notes": "User stated desired retirement spending."
+    }
+  ],
+  "liabilities": [],
+  "tax_profile": {
+    "filing_status": null,
+    "state": "WA",
+    "federal_marginal_bracket": null,
+    "state_tax_rate": null,
+    "capital_gains_bracket": null,
+    "estimated_taxable_income": null,
+    "carryforward_losses": null,
+    "rmd_relevant": null,
+    "roth_conversion_interest": null,
+    "charitable_giving_interest": null,
+    "tax_notes": []
+  },
+  "risk_profile": {
+    "risk_tolerance": null,
+    "risk_capacity": null,
+    "liquidity_needs": [],
+    "concentration_risks": [],
+    "insurance_notes": [],
+    "estate_notes": []
+  },
+  "assumptions": [
+    "Assumed annual retirement spending is in today's dollars.",
+    "Assumed the $1.8M figure represents current market value of invested assets.",
+    "Assumed planning horizon age of 95 until user specifies otherwise."
+  ],
+  "missing_information": [
+    "Account type breakdown, such as taxable, traditional retirement, Roth, HSA, and cash.",
+    "Current asset allocation or holdings.",
+    "Whether $120K spending target is before-tax or after-tax.",
+    "Filing status.",
+    "Expected Social Security, pension, or other retirement income.",
+    "Major future expenses or debts.",
+    "Taxable cost basis for non-retirement assets.",
+    "Risk tolerance and liquidity needs."
+  ],
+  "conflicts_or_uncertainties": [],
+  "professional_review_flags": [
+    "Tax-sensitive planning may be relevant once account types and cost basis are known.",
+    "Retirement readiness analysis requires professional review before acting on results."
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "case_7f3a9b2e",
+  "household_ref": "hh_0xA1B2",
+  "created_at": "2026-05-29T14:02:00Z",
+  "updated_at": "2026-05-29T14:09:30Z",
+  "status": "adviser_review",
+  "pipeline": {
+    "dag": [
+      { "stage": "wealth_intake", "depends_on": [] },
+      { "stage": "portfolio_analysis", "depends_on": ["wealth_intake"] },
+      { "stage": "tax_considerations", "depends_on": ["wealth_intake", "portfolio_analysis"] },
+      { "stage": "longevity_modeling", "depends_on": ["wealth_intake", "portfolio_analysis", "tax_considerations"] },
+      { "stage": "scenario_analysis", "depends_on": ["longevity_modeling"], "optional": true },
+      { "stage": "rebalancing", "depends_on": ["portfolio_analysis", "tax_considerations"], "optional": true },
+      { "stage": "reporting", "depends_on": ["wealth_intake", "portfolio_analysis", "longevity_modeling", "tax_considerations"] },
+      { "stage": "compliance_review", "depends_on": ["reporting"] }
+    ],
+    "active_run_id": null
+  },
+  "stages": {
+    "wealth_intake": {
+      "status": "complete",
+      "provenance": {
+        "source_skill": "wealth_intake",
+        "skill_version": "1.0.0",
+        "producer": "model",
+        "script_name": null,
+        "script_version": null,
+        "run_id": "run_intake_01",
+        "produced_at": "2026-05-29T14:02:30Z",
+        "input_hash": "sha256:0a1b2c3d4e5f6071",
+        "output_hash": "sha256:aa11bb22cc33dd44",
+        "rng_seed": null,
+        "consumed_from": [],
+        "notes": "Parsed from adviser-entered intake form."
+      },
+      "output_schema_ref": "wealth-intake/references/schema.json",
+      "output": {
+        "household": { "client_age": 62, "partner_age": 60, "state": "CA", "filing_status": "married_filing_jointly" },
+        "goals": [{ "name": "Retirement income", "category": "retirement", "priority": "high", "target_age_or_date": 65 }],
+        "missing_information": ["Cost basis for XYZ Growth Fund (Taxable Brokerage)", "Retirement spending not confirmed"],
+        "professional_review_flags": []
+      }
+    },
+    "portfolio_analysis": {
+      "status": "complete",
+      "provenance": {
+        "source_skill": "portfolio_analysis",
+        "skill_version": "1.0.0",
+        "producer": "script",
+        "script_name": "portfolio-analysis/scripts/portfolio.py",
+        "script_version": "1.0.0",
+        "run_id": "run_port_01",
+        "produced_at": "2026-05-29T14:04:00Z",
+        "input_hash": "sha256:11aa22bb33cc44dd",
+        "output_hash": "sha256:55ee66ff77aa88bb",
+        "rng_seed": null,
+        "consumed_from": [{ "stage": "wealth_intake", "output_hash": "sha256:aa11bb22cc33dd44" }]
+      },
+      "output_schema_ref": "portfolio-analysis/references/schema.md",
+      "output": {
+        "portfolio_summary": { "total_portfolio_value": 1450000, "currency": "USD" },
+        "current_allocation": { "broad_asset_group_allocation": { "equity": 0.7517, "fixed_income": 0.2483, "cash": 0.0 } },
+        "allocation_drift": { "calculated": true, "drift_flags": ["equity: overweight by 5.2pp (review)."] },
+        "concentration_analysis": {
+          "single_holding_flags": [
+            "ACME Corp is 20.7% of portfolio (concentration_review).",
+            "Bond Index is 24.8% of portfolio (concentration_review)."
+          ]
+        },
+        "liquidity_analysis": { "cash_balance": 0.0, "cash_runway_months": 0.0, "cash_reserve_classification": "low cash reserve" }
+      }
+    },
+    "tax_considerations": {
+      "status": "complete",
+      "provenance": {
+        "source_skill": "tax_considerations",
+        "skill_version": "1.0.0",
+        "producer": "script",
+        "script_name": "tax-considerations/scripts/tax_flags.py",
+        "script_version": "1.0.0",
+        "run_id": "run_tax_01",
+        "produced_at": "2026-05-29T14:05:10Z",
+        "input_hash": "sha256:99cc88dd77ee66ff",
+        "output_hash": "sha256:1234abcd5678ef90",
+        "rng_seed": null,
+        "consumed_from": [
+          { "stage": "wealth_intake", "output_hash": "sha256:aa11bb22cc33dd44" },
+          { "stage": "portfolio_analysis", "output_hash": "sha256:55ee66ff77aa88bb" }
+        ]
+      },
+      "output_schema_ref": "tax-considerations/references/output_schema.json",
+      "output": {
+        "input_quality": { "known_taxable_basis_coverage": 0.8923 },
+        "taxable_gain_loss_snapshot": { "net_taxable_embedded_gain_loss": 285000.0 },
+        "professional_review_flags": [
+          { "category": "large_embedded_gain_flags", "flag": "ACME Corp embedded gain of $260,000, 17.9% of portfolio.", "severity": "high_priority_review" }
+        ],
+        "downstream_handoff": { "for_longevity_modeling": { "state_has_income_tax": true, "state": "CA" } }
+      }
+    },
+    "longevity_modeling": {
+      "status": "complete",
+      "provenance": {
+        "source_skill": "longevity_modeling",
+        "skill_version": "1.0.0",
+        "producer": "script",
+        "script_name": "longevity-modeling/scripts/longevity.py",
+        "script_version": "1.0.0",
+        "run_id": "run_long_01",
+        "produced_at": "2026-05-29T14:06:40Z",
+        "input_hash": "sha256:abcdef0123456789",
+        "output_hash": "sha256:fedcba9876543210",
+        "rng_seed": 12345,
+        "consumed_from": [
+          { "stage": "wealth_intake", "output_hash": "sha256:aa11bb22cc33dd44" },
+          { "stage": "portfolio_analysis", "output_hash": "sha256:55ee66ff77aa88bb" },
+          { "stage": "tax_considerations", "output_hash": "sha256:1234abcd5678ef90" }
+        ],
+        "notes": "rng_seed recorded so the 78.9% Monte Carlo result is byte-reproducible."
+      },
+      "output_schema_ref": "longevity-modeling/references/schema.md",
+      "output": {
+        "base_case_results": { "initial_withdrawal_rate": 0.0567, "depletion_occurs": false, "ending_portfolio_value": 2762738.28 },
+        "monte_carlo_results": { "simulation_count": 10000, "success_probability": 0.7886, "median_ending_value": 1648991.19, "p10_ending_value": 0.0 },
+        "sensitivity_analysis": { "most_sensitive_variables": ["early-retirement returns", "initial withdrawal rate"] }
+      }
+    },
+    "reporting": {
+      "status": "complete",
+      "provenance": {
+        "source_skill": "reporting",
+        "skill_version": "1.0.0",
+        "producer": "model",
+        "script_name": null,
+        "script_version": null,
+        "run_id": "run_report_01",
+        "produced_at": "2026-05-29T14:08:50Z",
+        "input_hash": "sha256:0f0e0d0c0b0a0908",
+        "output_hash": "sha256:abc123def456aa01",
+        "rng_seed": null,
+        "consumed_from": [
+          { "stage": "wealth_intake", "output_hash": "sha256:aa11bb22cc33dd44" },
+          { "stage": "portfolio_analysis", "output_hash": "sha256:55ee66ff77aa88bb" },
+          { "stage": "tax_considerations", "output_hash": "sha256:1234abcd5678ef90" },
+          { "stage": "longevity_modeling", "output_hash": "sha256:fedcba9876543210" }
+        ],
+        "notes": "Synthesis only; no new numbers. Source map = consumed_from."
+      },
+      "output_schema_ref": null,
+      "output": {
+        "format": "full_report",
+        "markdown_ref": "artifacts/case_7f3a9b2e/report_v1.md"
+      }
+    }
+  },
+  "consolidated": {
+    "missing_information": [
+      { "source_stage": "wealth_intake", "text": "Retirement spending not confirmed; longevity used $90,000/yr assumption." },
+      { "source_stage": "tax_considerations", "text": "Cost basis for XYZ Growth Fund (taxable)." }
+    ],
+    "assumptions": [
+      { "source_stage": "longevity_modeling", "kind": "placeholder", "text": "7% equity / 4% bond nominal, 2.5% inflation, 0.4% tax drag." },
+      { "source_stage": "wealth_intake", "kind": "user", "text": "$90,000/yr retirement spending (unconfirmed)." }
+    ],
+    "conflicts_or_uncertainties": [],
+    "unknowns": [],
+    "professional_review_flags": [
+      { "source_stage": "tax_considerations", "category": "large_embedded_gain_flags", "severity": "high_priority_review", "text": "ACME Corp embedded gain of $260,000 (17.9% of portfolio).", "requires_human_review": true },
+      { "source_stage": "portfolio_analysis", "category": "concentration_flags", "severity": "review", "text": "Five holdings exceed 10% of portfolio.", "requires_human_review": false }
+    ]
+  },
+  "gates": {
+    "compliance_review": {
+      "status": "passed",
+      "run_id": "run_comp_01",
+      "produced_at": "2026-05-29T14:09:20Z",
+      "blocking_findings": []
+    },
+    "adviser_signoff": {
+      "status": "pending",
+      "adviser_ref": null,
+      "signed_at": null,
+      "notes": null
+    },
+    "hitl_checkpoints": [
+      {
+        "checkpoint": "high_priority_tax_flag",
+        "reason": "ACME Corp embedded gain flagged high_priority_review.",
+        "raised_by_stage": "tax_considerations",
+        "status": "open",
+        "resolved_by": null,
+        "resolved_at": null
+      }
+    ]
+  },
+  "audit_log": [
+    { "run_id": "run_intake_01", "stage": "wealth_intake", "action": "invoke", "timestamp": "2026-05-29T14:02:30Z", "producer": "model", "script_name": null, "script_version": null, "input_hash": "sha256:0a1b2c3d4e5f6071", "output_hash": "sha256:aa11bb22cc33dd44", "rng_seed": null, "executor": "orchestrator", "outcome": "ok" },
+    { "run_id": "run_port_01", "stage": "portfolio_analysis", "action": "invoke", "timestamp": "2026-05-29T14:04:00Z", "producer": "script", "script_name": "portfolio-analysis/scripts/portfolio.py", "script_version": "1.0.0", "input_hash": "sha256:11aa22bb33cc44dd", "output_hash": "sha256:55ee66ff77aa88bb", "rng_seed": null, "executor": "orchestrator", "outcome": "ok" },
+    { "run_id": "run_long_01", "stage": "longevity_modeling", "action": "invoke", "timestamp": "2026-05-29T14:06:40Z", "producer": "script", "script_name": "longevity-modeling/scripts/longevity.py", "script_version": "1.0.0", "input_hash": "sha256:abcdef0123456789", "output_hash": "sha256:fedcba9876543210", "rng_seed": 12345, "executor": "orchestrator", "outcome": "ok" },
+    { "run_id": "run_comp_01", "stage": "compliance_review", "action": "gate", "timestamp": "2026-05-29T14:09:20Z", "producer": "script", "script_name": null, "script_version": "1.0.0", "input_hash": "sha256:abc123def456aa01", "output_hash": null, "rng_seed": null, "executor": "orchestrator", "outcome": "ok" }
+  ]
+}
